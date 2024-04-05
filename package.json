@@ -4,7 +4,7 @@
   "description": "Integrated server and socket services",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon server/server.js",
     "start:socket": "nodemon socket/index.js",
     "start:dev": "concurrently \"npm run start\" \"npm run start:socket\""
   },
