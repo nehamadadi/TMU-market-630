@@ -19,7 +19,7 @@ app.use('/uploads', express.static('uploads'));
 
 const jwt=require("jsonwebtoken")
 
-const JWT_SECRET= "rhgwajenoejdnnsasssjiwjmsjbfcgahtarers"
+const JWT_SECRET= "process.env.JWT_SECRET"
 
 const PORT = process.env.PORT || 3001; //Set port to 3001
 function isLoggedIn(req, res, next) {
@@ -51,7 +51,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 
 mongoose
-    .connect("mongodb+srv://Tetsing:123@tmumarket.skiy9lf.mongodb.net/TmuMarket", {
+    .connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
 }) //;
   .then(() => {
