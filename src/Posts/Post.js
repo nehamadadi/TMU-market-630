@@ -302,7 +302,7 @@ function Post() {
                     {post.images.map((image, index) => (
                       <img
   key={index}
-  src={`https://tmu-market-630.onrender.com/${image}`}
+  src={`https://swjgbfcypnjwhcysikfz.supabase.co/storage/v1/object/public/tmumarket/${image}`}
   alt={post.title}
 />
                     ))}
