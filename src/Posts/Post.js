@@ -295,7 +295,7 @@ function Post() {
                     {post.images.map((image, index) => (
                       <img
   key={index}
-  src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${image}`}
+  src={`https://tmu-market-630.onrender.com/uploads/${image}`}
   alt={post.title}
 />
                     ))}
