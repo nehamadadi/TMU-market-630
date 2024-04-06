@@ -134,7 +134,7 @@ function Post() {
     const submissionData = new FormData(event.target);
 
     try {
-      const response = await fetch(${process.env.REACT_APP_BACKEND_URL}/api/posts`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, {
         method: "POST",
         body: submissionData, 
         headers: {
