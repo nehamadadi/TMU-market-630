@@ -248,14 +248,23 @@ app.get('/api/posts', async (req, res) => {
     try {
         const posts = await Post.find(queryObject).populate('createdBy', 'fname lname');
         
-        // Map through posts and modify the images URLs to include Supabase URL
-        const postsWithImages = posts.map(post => {
+        // Fetch the Supabase bucket name from environment variable
+        const supabaseBucket = process.env.SUPABASE_BUCKET;
+
+        // Map through posts and fetch the images from Supabase
+        const postsWithImages = await Promise.all(posts.map(async post => {
             const postWithImages = { ...post._doc };
-            postWithImages.images = postWithImages.images.map(imageUrl => {
-                return `https://swjgbfcypnjwhcysikfz.supabase.co/storage/v1/object/public/tmumarket/${imageUrl}`;
-            });
+            postWithImages.images = await Promise.all(postWithImages.images.map(async imageUrl => {
+                // Fetch image from Supabase using dynamic bucket name
+                const { data, error } = await supabase.storage.from(supabaseBucket).getPublicUrl(imageUrl);
+                if (error) {
+                    console.error('Error fetching image from Supabase:', error);
+                    return null;
+                }
+                return data.publicURL;
+            }));
             return postWithImages;
-        });
+        }));
 
         res.json(postsWithImages);
     } catch (error) {
