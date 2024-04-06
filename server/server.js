@@ -238,7 +238,7 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
             uploadedImages.push(data.Key); // Store the key of the uploaded file
         }
 
-        const imageURLs = uploadedImages.map(key => `https://your-supabase-url.com/storage/v1/object/public/images/${key}`); // Construct URLs for the uploaded images
+        const imageURLs = uploadedImages.map(key => `https://apjebcbhwcaptvacqapr.supabase.co`); // Construct URLs for the uploaded images
 
         const newPost = new Post({
             title,
