@@ -35,9 +35,12 @@ const multer = require('multer');
 
 const jwt=require("jsonwebtoken")
 
-const JWT_SECRET= "process.env.JWT_SECRET"
+const JWT_SECRET= process.env.JWT_SECRET
 
 const PORT = process.env.PORT || 3001; //Set port to 3001
+app.listen(PORT, () => {
+  console.log(`Listening on port, ${PORT}`);
+});
 function isLoggedIn(req, res, next) {
     const authHeader = req.headers.authorization;
     if (authHeader) {
@@ -248,7 +251,9 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res, n
             //uploadedImages.push(data.Key); // Store the key of the uploaded file
         }
 
-        const imageURLs = uploadedImages.map(key => `https://apjebcbhwcaptvacqapr.supabase.co/tmumarket/${data.Key}`); // Construct URLs for the uploaded images
+  
+const imageURLs = uploadedImages.map(key => `https://apjebcbhwcaptvacqapr.supabase.co/storage/v1/object/public/images/${key}`);
+
 
         const newPost = new Post({
             title,
@@ -482,3 +487,8 @@ app.get('/posts/count', async (req, res) => {
 app.listen(PORT, () =>  {
     console.log(`Listening on port, ${PORT}`);
 });
+
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
+
