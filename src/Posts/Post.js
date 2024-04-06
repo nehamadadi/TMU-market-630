@@ -118,7 +118,7 @@ function Post() {
     }));
   };
 
-  const handleSubmit = async (event) => {
+ const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
 
@@ -129,16 +129,23 @@ function Post() {
       window.location.href = "/login";
       return;
     }
-
     
-    const submissionData = new FormData(event.target);
+    // Create an instance of FormData with the form data
+    const formData = new FormData(event.target);
+
+    // Append image files to FormData, assuming 'images' is the field name for file input
+    const images = event.target.images.files;
+    for (let i = 0; i < images.length; i++) {
+      formData.append('images', images[i]);
+    }
 
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, {
         method: "POST",
-        body: submissionData, 
+        body: formData, // send the FormData
         headers: {
           Authorization: `Bearer ${token}`,
+          // Don't set the 'Content-Type' header, let the browser set it with the correct boundary
         },
       });
 
@@ -146,6 +153,7 @@ function Post() {
         alert("Post created successfully");
         // Refresh the list of posts to include the new one
         fetchPosts();
+        // Reset form state
         setFormData({
           title: "",
           description: "",
@@ -155,20 +163,21 @@ function Post() {
           location: "",
         });
       } else if (response.status === 401) {
-        alert("Session expired, Please log in gain.");
+        alert("Session expired, please log in again.");
         localStorage.removeItem("token");
         window.location.href = "/login";
       } else {
         const result = await response.json();
-        alert(`Failed to create post: Invalid Input! Try again!`);
+        alert(`Failed to create post: ${result.error || 'Unknown Error'}`);
       }
     } catch (error) {
       console.error("Error submitting the form", error);
-      alert(`Error submitting the form: Invalid Input! Try again!`);
+      alert(`Error submitting the form: ${error.toString()}`);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="section">
@@ -290,7 +299,7 @@ function Post() {
                     {post.images.map((image, index) => (
                       <img
                         key={index}
-                        src={`http://localhost:3001/${image}`}
+                        src={image}
                         alt={post.title}
                       />
                     ))}
