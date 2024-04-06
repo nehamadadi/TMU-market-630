@@ -69,16 +69,22 @@ function ClickedAd(props) {
 
   const handleNew = async () => {
     try {
-      await axios.post('http://localhost:3001/api/chat', {
+      // Dynamically set the base URL based on the environment variable
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      
+      // Construct the request URL using the backendUrl variable
+      const requestUrl = `${backendUrl}/api/chat`;
+
+      await axios.post(requestUrl, {
         senderId: userData._id,
         receiverId: post.createdBy._id
       });
       setChatCreated(true);
       alert(`Send ${post.createdBy.fname} ${post.createdBy.lname} A Message!`);
     } catch (error) {
-      console.log(error);
+      console.error(error); // It's better to use console.error to log errors
     }
-  };
+};
 
   
   const isCurrentUserCreator = userData._id === post.createdBy._id;
