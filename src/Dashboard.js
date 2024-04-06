@@ -58,7 +58,7 @@ function Dashboard() {
         <X size={24} className="icon" onClick={toggleSidePanel} />
         <img src={logo} alt="tmulogo" />
         <br />
-        <h4>Navigation</h4> <br />
+        <h4 className="nav">Navigation</h4> <br />
         <button className={`nav-button ${activeSection === 'home' ? 'active' : ''}`} onClick={() => handleNavigation('home')}>
           <HouseSimple size={24} style={{ display: "inline-block" }} /> Home
         </button>
