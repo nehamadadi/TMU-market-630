@@ -17,8 +17,6 @@ p{
   font-size: 120%;
 }
 nav {
-  position: relative;
-  z-index: 10;
   display: flex;
   justify-content: space-around;
   padding: 10px 0;
@@ -272,7 +270,4 @@ background-color: pink;
   color: black;
 }
 
-.posts-container, ul.post-list li {
-  position: relative; 
-  z-index: 1; 
-}
+
