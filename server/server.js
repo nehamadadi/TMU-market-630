@@ -252,7 +252,7 @@ app.get('/api/posts', async (req, res) => {
         const postsWithImages = posts.map(post => {
             const postWithImages = { ...post._doc };
             postWithImages.images = postWithImages.images.map(imageUrl => {
-                return `https://swjgbfcypnjwhcysikfz.supabase.co/storage/v1/object/public/tmumarket/${imageUrl}`;
+                return `https://swjgbfcypnjwhcysikfz.supabase.co/storage/v1/object/public/tmumarket/images/${imageUrl}`;
             });
             return postWithImages;
         });
