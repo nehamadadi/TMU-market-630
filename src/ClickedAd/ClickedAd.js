@@ -129,7 +129,7 @@ function ClickedAd(props) {
         <div className="product-display flex flex-col lg:flex-row mx-auto h-screen">
           <div className="product-image lg:w-1/2 md:w-full">
             <img
-              src={`${process.env.REACT_APP_BACKEND_URL}/${post.images}`}
+              src={`${post.images}`}
               className="w-full h-auto object-cover"
               alt="Product"
             />
