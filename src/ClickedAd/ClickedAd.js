@@ -74,7 +74,7 @@ function ClickedAd(props) {
       const socketUrl = process.env.REACT_APP_SOCKET_URL;
       
       // Construct the request URL using the backendUrl variable
-      const requestUrl = `${socketUrl}/api/chat`;
+      const requestUrl = `${backendUrl}/api/chat`;
 
       await axios.post(requestUrl, {
         senderId: userData._id,
