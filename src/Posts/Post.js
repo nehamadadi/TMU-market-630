@@ -294,10 +294,10 @@ function Post() {
                   <div className="post-image">
                     {post.images.map((image, index) => (
                       <img
-                        key={index}
-                        img src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${image}`}
-                        alt={post.title}
-                      />
+  key={index}
+  src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${image}`}
+  alt={post.title}
+/>
                     ))}
                   </div>
                   <br />
