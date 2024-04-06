@@ -113,6 +113,7 @@ ul.post-list li:hover {
 .filter-container {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   
 }
 
