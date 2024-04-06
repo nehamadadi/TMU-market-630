@@ -28,7 +28,7 @@ function ClickedAd(props) {
 
   useEffect(() => {
     if (!map.current) {
-      mapboxgl.accessToken = 'pk.eyJ1IjoidG11bWFya2V0IiwiYSI6ImNsdWtuMmV4dTBuYWoya3FwMmE3bW1hdHgifQ.XLz4FPeHhysE0f2SCyHC0g';
+      mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v11',
@@ -122,7 +122,7 @@ function ClickedAd(props) {
         <div className="product-display flex flex-col lg:flex-row mx-auto h-screen">
           <div className="product-image lg:w-1/2 md:w-full">
             <img
-              src={`http://localhost:3001/${post.images}`}
+              src={`${process.env.REACT_APP_BACKEND_URL}/${post.images}`}
               className="w-full h-auto object-cover"
               alt="Product"
             />
