@@ -6,19 +6,11 @@ const cors = require('cors');
 
 // Define CORS options
 const corsOptions = {
-  origin: '*',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
-
-
-
-const { createClient } = require('@supabase/supabase-js');
-const supabaseUrl = 'https://swjgbfcypnjwhcysikfz.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
-
 
 
 app.use(cors(corsOptions));
@@ -31,7 +23,7 @@ require("./userDetails.js");
 
 
 const multer = require('multer');
-//app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
 
 const jwt=require("jsonwebtoken")
 
@@ -54,20 +46,17 @@ function isLoggedIn(req, res, next) {
     }
 }
 
-//const storage = multer.diskStorage({
-  //  destination: function(req, file, cb) {
-    //    cb(null, 'uploads/')
-  //  },
-  //  filename: function(req, file, cb) {
-   //     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-   //     cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
-  //  }
-//});
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function(req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+    }
+});
 
-//const upload = multer({storage: storage});
-
-const upload = multer({ storage: multer.memoryStorage() });
-
+const upload = multer({storage: storage});
 
 mongoose
     .connect(process.env.MONGODB_URI, {
@@ -171,7 +160,7 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true,
        
-       // match: [/^[a-zA-Z0-9 ]{3,50}$/, 'Please fill a valid title'],
+        match: [/^[a-zA-Z0-9 ]{3,50}$/, 'Please fill a valid title'],
     },
     description: {
         type: String,
@@ -209,72 +198,41 @@ const Post = mongoose.model('Post', postSchema);
 module.exports = Post;
 
 
-
-// Define route to fetch all posts
-app.get('/api/posts', async (req, res) => {
-    console.log('Received query params:', req.query);
-    const { category, location, price, query } = req.query;
-    
-    let queryObject = {};
-    if (category) {
-        queryObject.category = new RegExp(category, 'i');
-    }
-    if (location) {
-        queryObject.location = new RegExp(location, 'i');
-    }
-    if (price) {
-        let priceCondition = {};
-        if (price.startsWith('<')) {
-            priceCondition.$lt = parseFloat(price.substring(1));
-        } else if (price.startsWith('>')) {
-            priceCondition.$gt = parseFloat(price.substring(1));
-        } else if (price.includes('-')) {
-            let [min, max] = price.split('-').map(Number);
-            priceCondition.$gte = min;
-            priceCondition.$lte = max;
-        }
-        if (Object.keys(priceCondition).length > 0) {
-            queryObject.price = priceCondition;
-        }
-    }
-    if (query) {
-        queryObject.$or = [
-            { title: new RegExp(query, 'i') },
-            { description: new RegExp(query, 'i') },
-            { tags: { $in: [new RegExp(query, 'i')] } }
-        ];
-    }
-    
+app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) => {
     try {
-        const posts = await Post.find(queryObject).populate('createdBy', 'fname lname');
+        console.log('Recieved POST request to /api/posts:', req.body);
+        let { title, description, price, category, location} = req.body;
+        let  tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
+
+        price = Number(price);
+        if (isNaN(price)) {
+            return res.status(400).json({ error: "Invalid price format" });
+        }
         
-        // Fetch the Supabase bucket name from environment variable
-        const supabaseBucket = process.env.SUPABASE_BUCKET;
+        console.log(req.user);
+        const newPost = new Post({
+            title,
+            description,
+            tags,
+            images: req.files.map(file => file.path),
+            price,
+            category,
+            location,
+            createdBy: req.user.id
+        });
 
-        // Map through posts and fetch the images from Supabase
-        const postsWithImages = await Promise.all(posts.map(async post => {
-            const postWithImages = { ...post._doc };
-            postWithImages.images = await Promise.all(postWithImages.images.map(async imageUrl => {
-                // Fetch image from Supabase using dynamic bucket name
-                const { data, error } = await supabase.storage.from(supabaseBucket).getPublicUrl(imageUrl);
-                if (error) {
-                    console.error('Error fetching image from Supabase:', error);
-                    return null;
-                }
-                return data.publicURL;
-            }));
-            return postWithImages;
-        }));
-
-        res.json(postsWithImages);
+        // Save the new post
+        await newPost.save();
+        
+        // Send a success response
+        res.status(201).send({ message: 'Post created successfully', post: newPost });
     } catch (error) {
-        console.error('Failed to fetch posts:', error);
-        res.status(500).json({ message: 'Error fetching posts', error: error.toString() });
-    }
+        console.error('Error handling POST request to /api/posts:', error);
+        console.error(error.stack);
+        res.status(500).send({error: 'Error creating post', details: error.message});
+        
+        }
 });
-
-
-
 
 
 app.get('/api/posts', async(req, res) => {
