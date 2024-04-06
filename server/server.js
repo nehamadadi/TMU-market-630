@@ -13,6 +13,14 @@ const corsOptions = {
 };
 
 
+
+import { createClient } from '@supabase/supabase-js'
+const supabaseUrl = 'https://apjebcbhwcaptvacqapr.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+
+
 app.use(cors(corsOptions));
 
 app.options('*', cors());
@@ -23,7 +31,7 @@ require("./userDetails.js");
 
 
 const multer = require('multer');
-app.use('/uploads', express.static('uploads'));
+//app.use('/uploads', express.static('uploads'));
 
 const jwt=require("jsonwebtoken")
 
@@ -198,23 +206,45 @@ const Post = mongoose.model('Post', postSchema);
 module.exports = Post;
 
 
+
 app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) => {
     try {
-        console.log('Recieved POST request to /api/posts:', req.body);
-        let { title, description, price, category, location} = req.body;
-        let  tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
+        console.log('Received POST request to /api/posts:', req.body);
+        let { title, description, price, category, location } = req.body;
+        let tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
 
         price = Number(price);
         if (isNaN(price)) {
             return res.status(400).json({ error: "Invalid price format" });
         }
-        
+
         console.log(req.user);
+
+        // Modify to upload images to Supabase Storage
+        const uploadedImages = [];
+        for (const file of req.files) {
+            const { data, error } = await supabase.storage.from('images').upload(file.path, {
+                // Set the appropriate content type
+                contentType: file.mimetype,
+                // Optionally, you can set metadata for the file
+                metadata: { filename: file.originalname },
+            });
+
+            if (error) {
+                console.error('Error uploading file to Supabase:', error);
+                return res.status(500).json({ error: 'Error uploading file to Supabase' });
+            }
+
+            uploadedImages.push(data.Key); // Store the key of the uploaded file
+        }
+
+        const imageURLs = uploadedImages.map(key => `https://your-supabase-url.com/storage/v1/object/public/images/${key}`); // Construct URLs for the uploaded images
+
         const newPost = new Post({
             title,
             description,
             tags,
-            images: req.files.map(file => file.path),
+            images: imageURLs, // Store the URLs of the uploaded images in the database
             price,
             category,
             location,
@@ -223,16 +253,17 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
 
         // Save the new post
         await newPost.save();
-        
+
         // Send a success response
         res.status(201).send({ message: 'Post created successfully', post: newPost });
     } catch (error) {
         console.error('Error handling POST request to /api/posts:', error);
         console.error(error.stack);
-        res.status(500).send({error: 'Error creating post', details: error.message});
-        
-        }
+        res.status(500).send({ error: 'Error creating post', details: error.message });
+    }
 });
+
+
 
 
 app.get('/api/posts', async(req, res) => {
