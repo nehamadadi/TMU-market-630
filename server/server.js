@@ -54,17 +54,20 @@ function isLoggedIn(req, res, next) {
     }
 }
 
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, 'uploads/')
-    },
-    filename: function(req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
-    }
-});
+//const storage = multer.diskStorage({
+  //  destination: function(req, file, cb) {
+    //    cb(null, 'uploads/')
+  //  },
+  //  filename: function(req, file, cb) {
+   //     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+   //     cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+  //  }
+//});
 
-const upload = multer({storage: storage});
+//const upload = multer({storage: storage});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
 
 mongoose
     .connect(process.env.MONGODB_URI, {
@@ -168,7 +171,7 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true,
        
-        match: [/^[a-zA-Z0-9 ]{3,50}$/, 'Please fill a valid title'],
+       // match: [/^[a-zA-Z0-9 ]{3,50}$/, 'Please fill a valid title'],
     },
     description: {
         type: String,
@@ -207,7 +210,10 @@ module.exports = Post;
 
 
 
-app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) => {
+app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res, next) => {
+
+ const pattern = /^[a-zA-Z0-9 ]{3,50}$/;
+  console.log(pattern.test(req.body.title));
     try {
         console.log('Received POST request to /api/posts:', req.body);
         let { title, description, price, category, location } = req.body;
@@ -227,7 +233,8 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
                 // Set the appropriate content type
                 contentType: file.mimetype,
                 // Optionally, you can set metadata for the file
-                metadata: { filename: file.originalname },
+               // metadata: { filename: file.originalname },
+              upsert: false
             });
 
             if (error) {
@@ -235,7 +242,10 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
                 return res.status(500).json({ error: 'Error uploading file to Supabase' });
             }
 
-            uploadedImages.push(data.Key); // Store the key of the uploaded file
+           const url = `https://apjebcbhwcaptvacqapr.supabase.co/storage/v1/object/public/${data.Key}`;
+        uploadedImages.push(url);
+
+            //uploadedImages.push(data.Key); // Store the key of the uploaded file
         }
 
         const imageURLs = uploadedImages.map(key => `https://apjebcbhwcaptvacqapr.supabase.co/tmumarket/${data.Key}`); // Construct URLs for the uploaded images
