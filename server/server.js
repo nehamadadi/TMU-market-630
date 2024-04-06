@@ -31,7 +31,6 @@ require("./userDetails.js");
 
 
 const multer = require('multer');
-//app.use('/uploads', express.static('uploads'));
 
 const jwt=require("jsonwebtoken")
 
@@ -54,20 +53,53 @@ function isLoggedIn(req, res, next) {
     }
 }
 
-//const storage = multer.diskStorage({
-  //  destination: function(req, file, cb) {
-    //    cb(null, 'uploads/')
-  //  },
-  //  filename: function(req, file, cb) {
-   //     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-   //     cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
-  //  }
-//});
+const storage = multer.memoryStorage({
+  destination: function (req, file, cb) {
+    cb(null, '') 
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+  }
+});
 
-//const upload = multer({storage: storage});
+const upload = multer({ storage: storage });
 
-const upload = multer({ storage: multer.memoryStorage() });
+app.post('/api/posts', upload.array('images', 5), async (req, res) => {
+    try {
+        // Extract post data from request body
+        const { title, description, tags, price, category, location, createdBy } = req.body;
 
+        // Extract filenames of uploaded images
+        const filenames = req.files.map(file => file.originalname);
+        const imageUrls = [];
+        for (const file of req.files) {
+            const { data, error } = await supabase.storage.from('uploads').upload(file.originalname, file.buffer);
+            if (error) {
+                throw new Error(error.message);
+            }
+            imageUrls.push(data.url);
+        }
+
+        // Create new post with the extracted data
+        const post = await Post.create({
+            title,
+            description,
+            tags,
+            images: imageUrls, // Store URLs of uploaded images
+            price,
+            category,
+            location,
+            createdBy
+        });
+
+        // Return the created post as JSON response
+        res.status(201).json(post);
+    } catch (error) {
+        console.error('Error creating post:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 mongoose
     .connect(process.env.MONGODB_URI, {
