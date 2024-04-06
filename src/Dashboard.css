@@ -157,7 +157,7 @@
   img{
     width: 90%;
   }
-    h4{
+    h4.nav{
         font-size: 1.2rem;
     }
 }
@@ -167,7 +167,7 @@
   .side-panel.visible {
     width: 100%; 
   }
-    h4{
+    h4.nav{
         font-size: 1rem;
     }
   .side-panel button {
