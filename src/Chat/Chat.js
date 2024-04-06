@@ -40,7 +40,7 @@ const Chat = ({ token }) => {
   }, [token]);
 
 useEffect(() => {
-  const wsBaseURL = process.env.REACT_APP_BACKEND_URL.replace(/^http/, 'ws');
+  const wsBaseURL = process.env.REACT_APP_SOCKET_URL.replace(/^http/, 'ws');
   socket.current = io(wsBaseURL);
   socket.current.on("get-users", (users) => {
     setOnlineUsers(users);
