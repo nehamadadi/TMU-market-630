@@ -55,7 +55,7 @@ function isLoggedIn(req, res, next) {
 
 const storage = multer.memoryStorage({
   destination: function (req, file, cb) {
-    cb(null, '') 
+    cb(null, 'uploads/') 
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
