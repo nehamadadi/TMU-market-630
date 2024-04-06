@@ -28,7 +28,7 @@ function ClickedAd(props) {
 
   useEffect(() => {
     if (!map.current) {
-      mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+      mapboxgl.accessToken = 'pk.eyJ1IjoidG11bWFya2V0IiwiYSI6ImNsdWtuMmV4dTBuYWoya3FwMmE3bW1hdHgifQ.XLz4FPeHhysE0f2SCyHC0g';
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v11',
@@ -83,7 +83,38 @@ function ClickedAd(props) {
   
   const isCurrentUserCreator = userData._id === post.createdBy._id;
 
- 
+  const [triviaQuestion, setTriviaQuestion] = useState(null);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [showAnswerResult, setShowAnswerResult] = useState(false);
+  const [chatCreated, setChatCreated] = useState(false);
+
+  useEffect(() => {
+    fetchTriviaQuestion();
+  }, []);
+
+  const fetchTriviaQuestion = async () => {
+    try {
+      const response = await fetch(
+        "https://opentdb.com/api.php?amount=1&type=boolean"
+      );
+      const data = await response.json();
+      setTriviaQuestion(data.results[0]);
+    } catch (error) {
+      console.error("Error fetching trivia questions:", error);
+    }
+  };
+
+  const handleAnswerSubmit = () => {
+    setShowAnswerResult(true);
+  };
+
+  function removeCharacters(question) {
+    return question
+      .replace(/(&quot;)/g, '"')
+      .replace(/(&rsquo;)/g, '"')
+      .replace(/(&#039;)/g, "'")
+      .replace(/(&amp;)/g, '"');
+  }
 
   return (
     <div>
@@ -91,7 +122,7 @@ function ClickedAd(props) {
         <div className="product-display flex flex-col lg:flex-row mx-auto h-screen">
           <div className="product-image lg:w-1/2 md:w-full">
             <img
-              src={`${process.env.REACT_APP_BACKEND_URL}/${post.images}`}
+              src={`http://localhost:3001/${post.images}`}
               className="w-full h-auto object-cover"
               alt="Product"
             />
@@ -129,7 +160,25 @@ function ClickedAd(props) {
                   <span className="ml-2">Send Message</span>
                 </button>
               )}
-              
+              {triviaQuestion && (
+                <div className="trivia-questions">
+                  <h3>Trivia Question:</h3>
+                  <p>{removeCharacters(triviaQuestion.question)}</p>
+                  <div className="answer-options">
+                    <button onClick={() => setUserAnswer("True")}>True</button>
+                    <button onClick={() => setUserAnswer("False")}>False</button>
+                  </div>
+                  <button className="submit-button" onClick={handleAnswerSubmit}>Submit Answer</button>
+                  {showAnswerResult && (
+                    <p className="answer-result">
+                      {userAnswer.toLowerCase() ===
+                        triviaQuestion.correct_answer.toLowerCase()
+                        ? "Correct!"
+                        : "Incorrect!"}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
