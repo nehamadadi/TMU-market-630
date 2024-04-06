@@ -295,7 +295,7 @@ function Post() {
                     {post.images.map((image, index) => (
                       <img
                         key={index}
-                        img src={`${process.env.REACT_APP_BACKEND_URL}/${image}`}
+                        img src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${image}`}
                         alt={post.title}
                       />
                     ))}
