@@ -210,68 +210,60 @@ module.exports = Post;
 
 
 
-app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res, next) => {
-
- const pattern = /^[a-zA-Z0-9 ]{3,50}$/;
-  console.log(pattern.test(req.body.title));
+// Define route to fetch all posts
+app.get('/api/posts', async (req, res) => {
+    console.log('Received query params:', req.query);
+    const { category, location, price, query } = req.query;
+    
+    let queryObject = {};
+    if (category) {
+        queryObject.category = new RegExp(category, 'i');
+    }
+    if (location) {
+        queryObject.location = new RegExp(location, 'i');
+    }
+    if (price) {
+        let priceCondition = {};
+        if (price.startsWith('<')) {
+            priceCondition.$lt = parseFloat(price.substring(1));
+        } else if (price.startsWith('>')) {
+            priceCondition.$gt = parseFloat(price.substring(1));
+        } else if (price.includes('-')) {
+            let [min, max] = price.split('-').map(Number);
+            priceCondition.$gte = min;
+            priceCondition.$lte = max;
+        }
+        if (Object.keys(priceCondition).length > 0) {
+            queryObject.price = priceCondition;
+        }
+    }
+    if (query) {
+        queryObject.$or = [
+            { title: new RegExp(query, 'i') },
+            { description: new RegExp(query, 'i') },
+            { tags: { $in: [new RegExp(query, 'i')] } }
+        ];
+    }
+    
     try {
-        console.log('Received POST request to /api/posts:', req.body);
-        let { title, description, price, category, location } = req.body;
-        let tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
-
-        price = Number(price);
-        if (isNaN(price)) {
-            return res.status(400).json({ error: "Invalid price format" });
-        }
-
-        console.log(req.user);
-
-        // Modify to upload images to Supabase Storage
-        const uploadedImages = [];
-        for (const file of req.files) {
-            const { data, error } = await supabase.storage.from('images').upload(file.path, {
-                // Set the appropriate content type
-                contentType: file.mimetype,
-                // Optionally, you can set metadata for the file
-               // metadata: { filename: file.originalname },
-              upsert: false
+        const posts = await Post.find(queryObject).populate('createdBy', 'fname lname');
+        
+        // Map through posts and modify the images URLs to include Supabase URL
+        const postsWithImages = posts.map(post => {
+            const postWithImages = { ...post._doc };
+            postWithImages.images = postWithImages.images.map(imageUrl => {
+                return `https://apjebcbhwcaptvacqapr.supabase.co/storage/v1/object/public/${imageUrl}`;
             });
-
-            if (error) {
-                console.error('Error uploading file to Supabase:', error);
-                return res.status(500).json({ error: 'Error uploading file to Supabase' });
-            }
-
-           const url = `https://apjebcbhwcaptvacqapr.supabase.co/storage/v1/object/public/${data.Key}`;
-        uploadedImages.push(url);
-
-            //uploadedImages.push(data.Key); // Store the key of the uploaded file
-        }
-
-        const imageURLs = uploadedImages.map(key => `https://apjebcbhwcaptvacqapr.supabase.co/tmumarket/${data.Key}`); // Construct URLs for the uploaded images
-
-        const newPost = new Post({
-            title,
-            description,
-            tags,
-            images: imageURLs, // Store the URLs of the uploaded images in the database
-            price,
-            category,
-            location,
-            createdBy: req.user.id
+            return postWithImages;
         });
 
-        // Save the new post
-        await newPost.save();
-
-        // Send a success response
-        res.status(201).send({ message: 'Post created successfully', post: newPost });
+        res.json(postsWithImages);
     } catch (error) {
-        console.error('Error handling POST request to /api/posts:', error);
-        console.error(error.stack);
-        res.status(500).send({ error: 'Error creating post', details: error.message });
+        console.error('Failed to fetch posts:', error);
+        res.status(500).json({ message: 'Error fetching posts', error: error.toString() });
     }
 });
+
 
 
 
