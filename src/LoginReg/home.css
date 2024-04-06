@@ -6,15 +6,6 @@ body {
   text-align: center;
 }
 
-h4{
-  font-size: 150%;
-  @media (max-width: 768px) {
-  h4 {
-    font-size: 120%;
-  }
-}
-}
-
 header {
   background-color: #03468F; 
   padding: 10px 20px;
