@@ -152,7 +152,7 @@ const fetchPosts = async (appliedFilters) => {
               <option value="">Select Category</option>
               <option value="Wanted">Items wanted</option>
               <option value="Sale">Items for Sale</option>
-              <option value="Academics">Academic Services</option>
+              <option value="Academic Services">Academic Services</option>
             </select>
             <select
               value={filters.location}
