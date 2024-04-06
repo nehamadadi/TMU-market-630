@@ -9,7 +9,7 @@ import Logout from './logout.js';
 
 import { List, X, HouseSimple, ChatsTeardrop, GameController, FileArrowUp, SignOut, User } from 'phosphor-react';
 
-//import logo from './tmuLogo.png';
+import logo from './Admin/tmulogo.png';
 
 function Dashboard() {
   const [activeSection, setActiveSection] = useState('home');
@@ -56,7 +56,7 @@ function Dashboard() {
     <div className="app-container">
       <nav className={`side-panel ${sidePanelVisible ? 'visible' : 'hidden'}`}>
         <X size={24} className="icon" onClick={toggleSidePanel} />
-        <img className='dash' src={require('./tmuLogo.png')} alt="tmulogo" />
+        <img className='dash' src={logo} alt="tmulogo" />
         <br />
         <h4>Navigation</h4> <br />
         <button className={`nav-button ${activeSection === 'home' ? 'active' : ''}`} onClick={() => handleNavigation('home')}>
