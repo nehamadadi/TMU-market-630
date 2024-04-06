@@ -2,6 +2,7 @@
   "name": "integrated-server-and-socket",
   "version": "1.0.0",
   "description": "Integrated server and socket services",
+  "type": "module.js"
   "main": "server.js",
   "scripts": {
     "start": "nodemon server/server.js",
