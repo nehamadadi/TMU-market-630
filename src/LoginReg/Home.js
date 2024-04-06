@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./home.css";
-
+import Weather from "./weather";
 import ClickedAd from "../ClickedAd/ClickedAd.js";
 
 function Home({ username, onBackButtonClick }) {
@@ -109,7 +109,7 @@ const fetchPosts = async (appliedFilters) => {
   return (
     <div className="home-container">
       <header className="home-header">
-        
+        <Weather />
         <h2>Welcome to TMU Market</h2>
         <div>
           <br />
