@@ -195,7 +195,7 @@ const fetchPosts = async (appliedFilters) => {
                           post.images.map((image, index) => (
                             <img
                               key={index}
-                              src={`http://localhost:3001/${image}`}
+                              src={`https://tmu-market-630.onrender.com/uploads/${image}`}
                               alt={post.title}
                             />
                           ))}
