@@ -234,8 +234,8 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
         }
 });
 
-app.use('/uploads', express.static('uploads'));
-app.get('/api/posts', async (req, res) => {
+
+app.get('/api/posts', async(req, res) => {
     console.log('Received query params:', req.query);
     const { category, location, price, query } = req.query;
     
@@ -271,24 +271,12 @@ app.get('/api/posts', async (req, res) => {
     
     try {
         const posts = await Post.find(queryObject).populate('createdBy', 'fname lname');
-        
-        // Map through posts and modify image URLs to local file paths
-        const postsWithLocalImages = posts.map(post => {
-            const postWithLocalImages = { ...post._doc };
-            postWithLocalImages.images = postWithLocalImages.images.map(imageUrl => {
-                // Convert image URL to local file path
-                return `/uploads/${imageUrl}`;
-            });
-            return postWithLocalImages;
-        });
-
-        res.json(postsWithLocalImages);
+        res.json(posts);
     } catch (error) {
         console.error('Failed to fetch posts:', error);
         res.status(500).json({ message: 'Error fetching posts', error: error.toString() });
     }
 });
-
 
 const ChatModel = require('./models/chat.js');
 
