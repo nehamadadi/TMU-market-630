@@ -17,6 +17,8 @@ p{
   font-size: 120%;
 }
 nav {
+  position: relative;
+  z-index: 10;
   display: flex;
   justify-content: space-around;
   padding: 10px 0;
@@ -268,4 +270,9 @@ background-color: pink;
 .backbutton:hover{
   background-color: #FFBA42;
   color: black;
+}
+
+.posts-container, ul.post-list li {
+  position: relative; 
+  z-index: 1; 
 }
