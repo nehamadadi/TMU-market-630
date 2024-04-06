@@ -56,7 +56,7 @@ function Dashboard() {
     <div className="app-container">
       <nav className={`side-panel ${sidePanelVisible ? 'visible' : 'hidden'}`}>
         <X size={24} className="icon" onClick={toggleSidePanel} />
-        <img className='dash' src={logo} alt="tmulogo" />
+        <img src={logo} alt="tmulogo" />
         <br />
         <h4>Navigation</h4> <br />
         <button className={`nav-button ${activeSection === 'home' ? 'active' : ''}`} onClick={() => handleNavigation('home')}>
