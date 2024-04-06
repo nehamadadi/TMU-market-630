@@ -157,6 +157,9 @@
   img{
     width: 90%;
   }
+    h5{
+        font-size: 60%;
+    }
 }
 
 
@@ -164,7 +167,7 @@
   .side-panel.visible {
     width: 100%; 
   }
-    h4{
+    h5{
         font-size: 60%;
     }
   .side-panel button {
