@@ -2,16 +2,24 @@ const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
 app.use(express.json());
-const cors = require('cors'); 
-app.use(cors({
-    origin: 'http://localhost:3000', 
+const cors = require('cors');
+
+// Define CORS options
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
-}));
+};
+
+
+app.use(cors(corsOptions));
+
 app.options('*', cors());
+
 const bcrypt = require('bcrypt');
 require("./userDetails.js");
+
 
 
 const multer = require('multer');
