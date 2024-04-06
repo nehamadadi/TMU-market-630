@@ -195,7 +195,7 @@ const fetchPosts = async (appliedFilters) => {
                           post.images.map((image, index) => (
                             <img
                               key={index}
-                              src={`${process.env.REACT_APP_BACKEND_URL}/uploads/${image}`}
+                              src={`${process.env.REACT_APP_BACKEND_URL}/${image}`}
                               alt={post.title}
                             />
                           ))}
