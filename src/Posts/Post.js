@@ -130,22 +130,18 @@ function Post() {
       return;
     }
     
-    // Create an instance of FormData with the form data
-    const formData = new FormData(event.target);
 
-    // Append image files to FormData, assuming 'images' is the field name for file input
-    const images = event.target.images.files;
-    for (let i = 0; i < images.length; i++) {
-      formData.append('images', images[i]);
-    }
+    const submissionData = new FormData(event.target);
+
+    
 
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, {
         method: "POST",
-        body: formData, // send the FormData
+        body: submissionData, 
         headers: {
           Authorization: `Bearer ${token}`,
-          // Don't set the 'Content-Type' header, let the browser set it with the correct boundary
+          
         },
       });
 
@@ -153,7 +149,7 @@ function Post() {
         alert("Post created successfully");
         // Refresh the list of posts to include the new one
         fetchPosts();
-        // Reset form state
+   
         setFormData({
           title: "",
           description: "",
@@ -299,7 +295,7 @@ function Post() {
                     {post.images.map((image, index) => (
                       <img
                         key={index}
-                        src={image}
+                        img src={`${process.env.REACT_APP_BACKEND_URL}/${image}`}
                         alt={post.title}
                       />
                     ))}
