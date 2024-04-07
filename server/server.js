@@ -83,6 +83,8 @@ app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => 
             if (error) {
               alert ("error uploading to supabase");
                 console.log(error.message);
+            }else{
+              alert ("Uploaded to supabase!");
             }
     
         // Create new post with the extracted data
