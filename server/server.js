@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 app.use(express.json());
 const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
 
 // Define CORS options
 const corsOptions = {
@@ -58,8 +59,8 @@ const storage = multer.memoryStorage({
     cb(null, 'uploads/') 
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+    const uniqueFilename = uuidv4(); 
+    cb(null, uniqueFilename);
   }
 });
 
