@@ -67,49 +67,6 @@ const upload = multer({ storage: storage });
 
 const CDNURL ="https://swjgbfcypnjwhcysikfz.supabase.co/storage/v1/object/public/uploads/";
 
-app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) => {
-    try {
-         console.log('Recieved POST request to /api/posts:', req.body);
-        let { title, description, price, category, location} = req.body;
-        let  tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
-       price = Number(price);
-        if (isNaN(price)) {
-            return res.status(400).json({ error: "Invalid price format" });
-        }
-
-       for (const file of req.files) {
-            if (file && file.originalname) {
-              console.log(file);
-                const { data, error } = await supabase.storage.from('uploads').upload(file.originalname);
-                if (error) {
-                  console.log(error);
-                    return res.status(500).json({ error: 'Error uploading file to Supabase' });
-                }else{
-                  console.log("Successfully became a nicki fan!");
-                }
-            }
-        }
-    
-        // Create new post with the extracted data
-        const post = await Post.create({
-            title,
-            description,
-            tags,
-            images: req.files.map(file => file.filename), // Store URLs of uploaded images
-            price,
-            category,
-            location,
-            createdBy: req.user.id
-        });
-
-        // Return the created post as JSON response
-        res.status(201).json(post);
-    } catch (error) {
-        console.error('Error creating post:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
 mongoose
     .connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
@@ -249,6 +206,48 @@ const Post = mongoose.model('Post', postSchema);
 
 module.exports = Post;
 
+app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) => {
+    try {
+         console.log('Recieved POST request to /api/posts:', req.body);
+        let { title, description, price, category, location} = req.body;
+        let  tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
+       price = Number(price);
+        if (isNaN(price)) {
+            return res.status(400).json({ error: "Invalid price format" });
+        }
+
+       for (const file of req.files) {
+            if (file && file.originalname) {
+              console.log(file);
+                const { data, error } = await supabase.storage.from('uploads').upload(file.originalname);
+                if (error) {
+                  console.log(error);
+                    return res.status(500).json({ error: 'Error uploading file to Supabase' });
+                }else{
+                  console.log("Successfully became a nicki fan!");
+                }
+            }
+        }
+    
+        // Create new post with the extracted data
+        const post = await Post.create({
+            title,
+            description,
+            tags,
+            images: req.files.map(file => file.filename), // Store URLs of uploaded images
+            price,
+            category,
+            location,
+            createdBy: req.user.id
+        });
+
+        // Return the created post as JSON response
+        res.status(201).json(post);
+    } catch (error) {
+        console.error('Error creating post:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 // Define route to fetch all posts
