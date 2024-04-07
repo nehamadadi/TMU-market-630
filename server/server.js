@@ -65,7 +65,7 @@ const storage = multer.memoryStorage({
 
 const upload = multer({ storage: storage });
 
-app.post('/api/posts', upload.single('image'), async (req, res) => {
+app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => {
     try {
          console.log('Recieved POST request to /api/posts:', req.body);
         let { title, description, price, category, location} = req.body;
@@ -74,7 +74,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
         if (isNaN(price)) {
             return res.status(400).json({ error: "Invalid price format" });
         }
-        const filename = req.file.filename;
+        const filename = req.file.path;
       
         // Extract filenames of upload image
             const { data, error } = await supabase.storage.from('uploads').upload(filename, req.file.buffer);
