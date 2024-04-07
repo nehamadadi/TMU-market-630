@@ -207,37 +207,42 @@ const Post = mongoose.model('Post', postSchema);
 
 module.exports = Post;
 
-app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) => {
+app.post('/api/posts', isLoggedIn, async (req, res) => {
     try {
-         console.log('Recieved POST request to /api/posts:', req.body);
-        let { title, description, price, category, location} = req.body;
-        let  tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
-       price = Number(price);
+        console.log('Received POST request to /api/posts:', req.body);
+        let { title, description, price, category, location } = req.body;
+        let tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
+        price = Number(price);
         if (isNaN(price)) {
             return res.status(400).json({ error: "Invalid price format" });
         }
 
-       for (const file of req.files) {
-            if (file && file.originalname) {
-              console.log(file.filename);
-               console.log('Uploaded file:', file.originalname);
-              console.log(file);
-                const { data, error } = await supabase.storage.from('uploads').upload(file);
+        // Array to store uploaded filenames
+        let uploadedFilenames = [];
+
+        // Process each file in the request body
+        for (const [filename, data] of Object.entries(req.body.files)) {
+            // If there's data for the file
+            if (data) {
+                console.log('Received file:', filename);
+                const uniqueFilename = `/uploads/${uuidv4()}`; // Generate UUID and prepend /uploads
+                const { error } = await supabase.storage.from('uploads').upload(uniqueFilename, data); // Upload file to Supabase with UUID filename
                 if (error) {
-                  console.log(error);
+                    console.log(error);
                     return res.status(500).json({ error: 'Error uploading file to Supabase' });
-                }else{
-                  console.log("Successfully became a nicki fan!");
+                } else {
+                    console.log("Successfully uploaded file to Supabase");
+                    uploadedFilenames.push(uniqueFilename); // Push UUID filename to array
                 }
             }
         }
-    
-        // Create new post with the extracted data
+
+        // Create new post with the extracted data and uploaded filenames
         const post = await Post.create({
             title,
             description,
             tags,
-            images: req.files.map(file => file.filename), // Store URLs of uploaded images
+            images: uploadedFilenames, // Store UUID filenames in the database
             price,
             category,
             location,
@@ -251,6 +256,7 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 
 // Define route to fetch all posts
