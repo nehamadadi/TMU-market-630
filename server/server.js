@@ -34,7 +34,7 @@ const multer = require('multer');
 
 const jwt=require("jsonwebtoken")
 
-const JWT_SECRET= process.env.JWT_SECRET;
+const JWT_SECRET= 'process.env.JWT_SECRET';
 
 const PORT = process.env.PORT || 3001; //Set port to 3001
 function isLoggedIn(req, res, next) {
