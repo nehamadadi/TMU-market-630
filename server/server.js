@@ -77,7 +77,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
         const filename = req.file.filename;
       
         // Extract filenames of upload image
-            const { data, error } = await supabase.storage.from('uploads').upload(filename, file.buffer);
+            const { data, error } = await supabase.storage.from('uploads').upload(filename, req.file.buffer);
             if (error) {
                 throw new Error(error.message);
             }
