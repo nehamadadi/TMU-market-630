@@ -77,9 +77,10 @@ app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => 
             return res.status(400).json({ error: "Invalid price format" });
         }
         const filename = req.file.path;
+      console.log(req.file.path);
       
         // Extract filenames of upload image
-            const { data, error } = await supabase.storage.from('uploads').upload(filename, req.file.buffer);
+            const { data, error } = await supabase.storage.from('uploads').upload(filename);
             if (error) {
               alert ("error uploading to supabase");
                 console.log(error.message);
