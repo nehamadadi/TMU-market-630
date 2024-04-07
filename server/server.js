@@ -74,13 +74,14 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
         if (isNaN(price)) {
             return res.status(400).json({ error: "Invalid price format" });
         }
+        const filename = req.file.filename;
       
         // Extract filenames of upload image
-            const { data, error } = await supabase.storage.from('uploads').upload(req.file.filename, file.buffer);
+            const { data, error } = await supabase.storage.from('uploads').upload(filename, file.buffer);
             if (error) {
                 throw new Error(error.message);
             }
-       const filename = req.file.filename;
+    
         // Create new post with the extracted data
         const post = await Post.create({
             title,
