@@ -76,17 +76,13 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
         if (isNaN(price)) {
             return res.status(400).json({ error: "Invalid price format" });
         }
-       // Handle each uploaded file
-        const filenames = req.files.map(file => file.path);
-
-      console.log(req.file.path);
     
         // Create new post with the extracted data
         const post = await Post.create({
             title,
             description,
             tags,
-            images: filenames, // Store URLs of uploaded images
+            images: req.files.map(file => file.path), // Store URLs of uploaded images
             price,
             category,
             location,
