@@ -82,7 +82,7 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
             title,
             description,
             tags,
-            images: req.files.map(file => file.path), // Store URLs of uploaded images
+            images: req.files.map(file => file.filename), // Store URLs of uploaded images
             price,
             category,
             location,
