@@ -133,15 +133,6 @@ function Post() {
 
     const submissionData = new FormData(event.target);
 
-    // Assuming the input for files has the name 'images' and supports multiple files
-  if (event.target.images && event.target.images.files) {
-    const files = event.target.images.files;
-    for (let i = 0; i < files.length; i++) {
-      // Appends each file under the same key 'images'
-      submissionData.append('images', files[i]);
-    }
-  }
-
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, {
         method: "POST",
