@@ -76,6 +76,16 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
         if (isNaN(price)) {
             return res.status(400).json({ error: "Invalid price format" });
         }
+
+       for (const file of req.files) {
+            if (file) {
+                const { data, error } = await supabase.storage.from('uploads').upload(file.filename);
+                if (error) {
+                    console.error('Error uploading file to Supabase:', error.message);
+                    return res.status(500).json({ error: 'Error uploading file to Supabase' });
+                }
+            }
+        }
     
         // Create new post with the extracted data
         const post = await Post.create({
