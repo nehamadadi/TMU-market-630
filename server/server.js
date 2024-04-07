@@ -82,7 +82,7 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
               console.log(file);
                 const { data, error } = await supabase.storage.from('uploads').upload(file.originalname);
                 if (error) {
-                    console.error('Error uploading file to Supabase:', error.message);
+                  console.log(error);
                     return res.status(500).json({ error: 'Error uploading file to Supabase' });
                 }else{
                   console.log("Successfully became a nicki fan!");
