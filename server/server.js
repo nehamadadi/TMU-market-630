@@ -78,15 +78,6 @@ app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => 
         }
         const filename = req.file.path;
       console.log(req.file.path);
-      
-        // Extract filenames of upload image
-            const { data, error } = await supabase.storage.from('uploads').upload(filename);
-            if (error) {
-              alert ("error uploading to supabase");
-                console.log(error.message);
-            }else{
-              alert ("Uploaded to supabase!");
-            }
     
         // Create new post with the extracted data
         const post = await Post.create({
