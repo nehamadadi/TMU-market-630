@@ -65,6 +65,8 @@ const storage = multer.memoryStorage({
 
 const upload = multer({ storage: storage });
 
+const CDNURL ="https://swjgbfcypnjwhcysikfz.supabase.co/storage/v1/object/public/uploads/";
+
 app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => {
     try {
          console.log('Recieved POST request to /api/posts:', req.body);
@@ -79,7 +81,8 @@ app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => 
         // Extract filenames of upload image
             const { data, error } = await supabase.storage.from('uploads').upload(filename, req.file.buffer);
             if (error) {
-                throw new Error(error.message);
+              alert ("error uploading to supabase");
+                console.log(error.message);
             }
     
         // Create new post with the extracted data
