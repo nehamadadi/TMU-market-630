@@ -65,32 +65,32 @@ const storage = multer.memoryStorage({
 
 const upload = multer({ storage: storage });
 
-app.post('/api/posts', upload.array('images', 5), async (req, res) => {
+app.post('/api/posts', upload.single('image'), async (req, res) => {
     try {
-        // Extract post data from request body
-        const { title, description, tags, price, category, location, createdBy } = req.body;
-
-        // Extract filenames of uploaded images
-        const filenames = req.files.map(file => file.originalname);
-        const imageUrls = [];
-        for (const file of req.files) {
-            const { data, error } = await supabase.storage.from('uploads').upload(file.originalname, file.buffer);
+         console.log('Recieved POST request to /api/posts:', req.body);
+        let { title, description, price, category, location} = req.body;
+        let  tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
+       price = Number(price);
+        if (isNaN(price)) {
+            return res.status(400).json({ error: "Invalid price format" });
+        }
+      
+        // Extract filenames of upload image
+            const { data, error } = await supabase.storage.from('uploads').upload(req.file.filename, file.buffer);
             if (error) {
                 throw new Error(error.message);
             }
-            imageUrls.push(data.url);
-        }
-
+       const filename = req.file.filename;
         // Create new post with the extracted data
         const post = await Post.create({
             title,
             description,
             tags,
-            images: imageUrls, // Store URLs of uploaded images
+            images: filename, // Store URLs of uploaded images
             price,
             category,
             location,
-            createdBy
+            createdBy: req.user.id
         });
 
         // Return the created post as JSON response
