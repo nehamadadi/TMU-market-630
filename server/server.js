@@ -67,7 +67,7 @@ const upload = multer({ storage: storage });
 
 const CDNURL ="https://swjgbfcypnjwhcysikfz.supabase.co/storage/v1/object/public/uploads/";
 
-app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => {
+app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) => {
     try {
          console.log('Recieved POST request to /api/posts:', req.body);
         let { title, description, price, category, location} = req.body;
@@ -76,7 +76,9 @@ app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => 
         if (isNaN(price)) {
             return res.status(400).json({ error: "Invalid price format" });
         }
-        const filename = req.file.path;
+       // Handle each uploaded file
+        const filenames = req.files.map(file => file.path);
+
       console.log(req.file.path);
     
         // Create new post with the extracted data
@@ -84,7 +86,7 @@ app.post('/api/posts', isLoggedIn, upload.single('images'), async (req, res) => 
             title,
             description,
             tags,
-            images: filename, // Store URLs of uploaded images
+            images: filenames, // Store URLs of uploaded images
             price,
             category,
             location,
