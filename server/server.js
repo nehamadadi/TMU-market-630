@@ -83,6 +83,8 @@ app.post('/api/posts', isLoggedIn, upload.array('images', 5), async (req, res) =
                 if (error) {
                     console.error('Error uploading file to Supabase:', error.message);
                     return res.status(500).json({ error: 'Error uploading file to Supabase' });
+                }else{
+                  console.log("Successfully became a nicki fan!");
                 }
             }
         }
