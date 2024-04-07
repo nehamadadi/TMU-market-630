@@ -227,7 +227,7 @@ function Post() {
           id="postPics"
           name="images" 
           className="form-input"
-          multiple
+          
           accept="image/*"
         />
 
